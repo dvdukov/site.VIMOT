@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mebel Vimot — кухни и корпусная мебель на заказ</title>
+  <meta name="description" content="Mebel Vimot — кухни и корпусная мебель на заказ. Соцсети, прямой контакт и портфолио работ." />
+
+  <link rel="icon" type="image/svg+xml" href="assets/logo/logo.svg" />
+  <meta property="og:title" content="Mebel Vimot" />
+  <meta property="og:description" content="Кухни и корпусная мебель на заказ — создаём уют, которому доверяют." />
+  <meta property="og:image" content="assets/images/gallery/kitchen-01.jpg" />
+  <meta property="og:type" content="website" />
+
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <header class="hero">
+        <img class="hero__logo" src="assets/logo/logo.svg" alt="Mebel Vimot" />
+        <p class="hero__slogan">создаём уют, которому доверяют</p>
+      </header>
+
+      <section class="about">
+        <p class="about__text" data-about-text></p>
+        <ul class="about__list" data-about-list></ul>
+      </section>
+
+      <nav class="links" data-links aria-label="Ссылки"></nav>
+
+      <section class="gallery">
+        <h2 class="gallery__title" data-gallery-title></h2>
+        <div class="gallery__grid" data-gallery-grid></div>
+      </section>
+
+      <footer class="footer">© 2026 Mebel Vimot</footer>
+    </div>
+  </div>
+
+  <div class="lightbox" data-lightbox>
+    <button type="button" class="lightbox__close" data-lightbox-close aria-label="Закрыть">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg>
+    </button>
+    <button type="button" class="lightbox__nav lightbox__nav--prev" data-lightbox-prev aria-label="Предыдущее фото">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+    </button>
+    <img src="" alt="Фото работы Mebel Vimot" />
+    <button type="button" class="lightbox__nav lightbox__nav--next" data-lightbox-next aria-label="Следующее фото">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+    </button>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
