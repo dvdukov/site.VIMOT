@@ -72,38 +72,157 @@ function renderLinks() {
     .join("");
 }
 
-function renderGallery() {
-  const titleEl = document.querySelector("[data-gallery-title]");
+const GALLERY_CACHE_KEY = "vimot-gallery-tree-v1";
+const GALLERY_CACHE_TTL = 5 * 60 * 1000;
+
+function getRepoInfo() {
+  const hostMatch = location.hostname.match(/^([^.]+)\.github\.io$/i);
+  if (hostMatch) {
+    const owner = hostMatch[1];
+    const repo = location.pathname.split("/").filter(Boolean)[0];
+    if (repo) return { owner, repo };
+  }
+  const [owner, repo] = CONFIG.repoFallback.split("/");
+  return { owner, repo };
+}
+
+async function fetchGalleryTree() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(GALLERY_CACHE_KEY) || "null");
+    if (cached && Date.now() - cached.ts < GALLERY_CACHE_TTL) return cached.data;
+  } catch (e) {
+    /* ignore cache errors */
+  }
+
+  const { owner, repo } = getRepoInfo();
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`,
+    { headers: { Accept: "application/vnd.github+json" } }
+  );
+  if (!res.ok) throw new Error("GitHub API error " + res.status);
+  const json = await res.json();
+
+  const imageRe = /\.(jpe?g|png|webp)$/i;
+  const galleryRe = /^assets\/images\/gallery\/([^/]+)\/(.+)$/;
+  const byCategory = {};
+  for (const item of json.tree || []) {
+    if (item.type !== "blob") continue;
+    const m = item.path.match(galleryRe);
+    if (!m || !imageRe.test(m[2])) continue;
+    (byCategory[m[1]] ||= []).push(item.path);
+  }
+  Object.values(byCategory).forEach((arr) => arr.sort());
+
+  try {
+    localStorage.setItem(
+      GALLERY_CACHE_KEY,
+      JSON.stringify({ ts: Date.now(), data: byCategory })
+    );
+  } catch (e) {
+    /* ignore cache errors */
+  }
+  return byCategory;
+}
+
+function revealGalleryItems(container) {
+  const items = container.querySelectorAll(".reveal");
+  requestAnimationFrame(() => {
+    items.forEach((el, i) => {
+      el.style.animationDelay = `${Math.min(i * 30, 300)}ms`;
+      el.classList.add("is-visible");
+    });
+  });
+}
+
+const galleryState = { byCategory: {}, active: null };
+
+function renderActiveGrid() {
   const grid = document.querySelector("[data-gallery-grid]");
-  if (titleEl) titleEl.textContent = CONFIG.galleryTitle;
+  const emptyEl = document.querySelector("[data-gallery-empty]");
   if (!grid) return;
 
-  const photos = Array.from({ length: CONFIG.galleryCount }, (_, i) =>
-    CONFIG.galleryPath(i + 1)
-  );
+  const photos = galleryState.byCategory[galleryState.active] || [];
 
+  if (!photos.length) {
+    grid.innerHTML = "";
+    if (emptyEl) {
+      emptyEl.hidden = false;
+      emptyEl.textContent = "Фото этого раздела скоро появятся.";
+    }
+    return;
+  }
+
+  if (emptyEl) emptyEl.hidden = true;
   grid.innerHTML = photos
     .map(
       (src, i) => `
       <button type="button" class="gallery__item reveal" data-index="${i}">
-        <img src="${src}" alt="Работа Mebel Vimot ${i + 1}" loading="lazy">
+        <img src="${src}" alt="Работа Mebel Vimot" loading="lazy">
       </button>`
     )
     .join("");
 
   setupLightbox(photos);
+  revealGalleryItems(grid);
 }
 
-function setupLightbox(photos) {
-  const lightbox = document.querySelector("[data-lightbox]");
-  const imgEl = lightbox?.querySelector("img");
-  if (!lightbox || !imgEl) return;
+async function renderGallery() {
+  const tabsEl = document.querySelector("[data-gallery-tabs]");
+  const emptyEl = document.querySelector("[data-gallery-empty]");
+  if (!tabsEl) return;
 
-  let current = 0;
+  tabsEl.innerHTML = CONFIG.categories
+    .map(
+      (c, i) =>
+        `<button type="button" class="gallery__tab${
+          i === 0 ? " is-active" : ""
+        }" data-category="${c.id}">${c.label}</button>`
+    )
+    .join("");
+
+  tabsEl.querySelectorAll(".gallery__tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.classList.contains("is-active")) return;
+      tabsEl
+        .querySelectorAll(".gallery__tab")
+        .forEach((b) => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      galleryState.active = btn.dataset.category;
+      renderActiveGrid();
+    });
+  });
+
+  galleryState.active = CONFIG.categories[0]?.id;
+
+  try {
+    galleryState.byCategory = await fetchGalleryTree();
+  } catch (e) {
+    if (emptyEl) {
+      emptyEl.hidden = false;
+      emptyEl.textContent =
+        "Не удалось загрузить фотографии. Попробуйте обновить страницу чуть позже.";
+    }
+    return;
+  }
+
+  renderActiveGrid();
+}
+
+const lightboxCtl = { photos: [], current: 0 };
+
+function setupLightbox(photos) {
+  lightboxCtl.photos = photos;
+}
+
+function initLightboxOnce() {
+  const lightbox = document.querySelector("[data-lightbox]");
+  const grid = document.querySelector("[data-gallery-grid]");
+  const imgEl = lightbox?.querySelector("img");
+  if (!lightbox || !imgEl || !grid) return;
 
   const open = (index) => {
-    current = index;
-    imgEl.src = photos[current];
+    lightboxCtl.current = index;
+    imgEl.src = lightboxCtl.photos[index];
     lightbox.classList.add("is-open");
     document.body.style.overflow = "hidden";
   };
@@ -114,12 +233,14 @@ function setupLightbox(photos) {
   };
 
   const step = (delta) => {
-    current = (current + delta + photos.length) % photos.length;
-    imgEl.src = photos[current];
+    const len = lightboxCtl.photos.length;
+    lightboxCtl.current = (lightboxCtl.current + delta + len) % len;
+    imgEl.src = lightboxCtl.photos[lightboxCtl.current];
   };
 
-  document.querySelectorAll(".gallery__item").forEach((btn) => {
-    btn.addEventListener("click", () => open(Number(btn.dataset.index)));
+  grid.addEventListener("click", (e) => {
+    const btn = e.target.closest(".gallery__item");
+    if (btn) open(Number(btn.dataset.index));
   });
 
   lightbox
@@ -172,6 +293,7 @@ function setupRevealAnimation() {
 document.addEventListener("DOMContentLoaded", () => {
   renderAbout();
   renderLinks();
+  initLightboxOnce();
   renderGallery();
   setupRevealAnimation();
 });

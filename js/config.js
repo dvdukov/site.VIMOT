@@ -59,8 +59,16 @@ const CONFIG = {
     },
   ],
 
-  galleryTitle: "Наши работы",
-  galleryCount: 31,
-  galleryPath: (n) =>
-    `assets/images/gallery/kitchen-${String(n).padStart(2, "0")}.jpg`,
+  // Разделы галереи. id должен совпадать с названием папки в assets/images/gallery/.
+  // Фото подгружаются автоматически из репозитория — просто добавляйте файлы в папку раздела.
+  categories: [
+    { id: "kitchens", label: "Кухни" },
+    { id: "wardrobes", label: "Гардеробные" },
+    { id: "cabinets", label: "Шкафы" },
+    { id: "bathrooms", label: "Санузлы" },
+  ],
+
+  // Используется только если сайт открыт не на *.github.io (например, локально).
+  // На самом GitHub Pages владелец/репозиторий определяются из адреса страницы автоматически.
+  repoFallback: "dvdukov/site.VIMOT",
 };
