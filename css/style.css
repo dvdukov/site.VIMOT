@@ -55,7 +55,7 @@ body {
   height: auto;
   display: block;
   margin: 0 auto 14px;
-  color: var(--color-on-dark);
+  color: var(--color-gray);
 }
 
 .hero__slogan {
