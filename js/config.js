@@ -60,7 +60,7 @@ const CONFIG = {
   ],
 
   galleryTitle: "Наши работы",
-  galleryCount: 14,
+  galleryCount: 31,
   galleryPath: (n) =>
     `assets/images/gallery/kitchen-${String(n).padStart(2, "0")}.jpg`,
 };
