@@ -53,8 +53,9 @@ const CONFIG = {
     {
       id: "portfolio",
       label: "Каталог и портфолио",
-      href: "portfolio.html",
+      href: "assets/portfolio/portfolio.pdf",
       icon: "catalog",
+      newTab: true,
     },
   ],
 

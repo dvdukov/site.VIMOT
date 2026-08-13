@@ -31,11 +31,21 @@
   /* Фирменные цвета Mebel Vimot */
   --color-primary: #313d65;
   --color-primary-soft: #4d5c8f;
-  --color-bg: #efeae4;
-  --color-surface: #ffffff;
+
+  /* Фон страницы — фирменный синий, остальное (плашки/кнопки) — бежевое и серое */
+  --color-bg: #313d65;
+  --color-surface: #313d65;
+  --color-beige: #efeae4;
+  --color-gray: #d9d9d9;
   --color-muted: #d9d9d9;
+
+  /* Текст на светлых плашках/кнопках */
   --color-text: #313d65;
   --color-text-soft: #313d65b3;
+
+  /* Текст прямо на синем фоне (слоган, заголовки, футер) */
+  --color-on-dark: #efeae4;
+  --color-on-dark-soft: #efeae4c2;
 
   /* Шрифты */
   --font-display: "Mirra", "Playfair Display", Georgia, serif;

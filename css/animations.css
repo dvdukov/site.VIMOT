@@ -30,8 +30,69 @@
   }
 }
 
+@keyframes logoLetterIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes logoDotIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes logoBlink {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.1);
+  }
+}
+
 .hero__logo {
   animation: float 6s ease-in-out infinite;
+}
+
+.hero__logo .logo-letter {
+  opacity: 0;
+  animation: logoLetterIn 0.45s var(--ease-out) forwards;
+}
+
+.hero__logo .logo-letters .logo-letter:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.hero__logo .logo-letters .logo-letter:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.hero__logo .logo-letters .logo-letter:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.hero__logo .logo-letters .logo-letter:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.hero__logo .logo-letters .logo-letter:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.hero__logo .logo-dot {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logoDotIn 0.3s var(--ease-out) 0.3s forwards,
+    logoBlink 0.35s ease-in-out 0.85s 2;
 }
 
 .reveal {
@@ -52,8 +113,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero__logo {
-    animation: none;
+  .hero__logo,
+  .hero__logo .logo-letter,
+  .hero__logo .logo-dot {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .reveal,

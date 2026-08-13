@@ -61,9 +61,10 @@ function renderLinks() {
       }
 
       const isExternal = /^https?:\/\//.test(link.href);
-      const attrs = isExternal
-        ? 'target="_blank" rel="noopener noreferrer"'
-        : "";
+      const attrs =
+        isExternal || link.newTab
+          ? 'target="_blank" rel="noopener noreferrer"'
+          : "";
       return `<a class="${classes.join(" ")}" href="${
         link.href
       }" ${attrs}>${content}</a>`;
